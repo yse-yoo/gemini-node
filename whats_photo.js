@@ -8,7 +8,10 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 async function run() {
     // プロンプト
-    const prompt = "この写真はなんですか？";
+    const prompt = "この写真はなんですか？日本語でお願いします";
+
+    // 写真読み込み
+    const photo = fs.readFileSync('./images/photo3.jpg');
 
     // LLMの選択「gemini-1.5-flash」
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
@@ -18,7 +21,7 @@ async function run() {
         prompt,
         {
             inlineData: {
-                data: Buffer.from(fs.readFileSync('./images/photo2.jpg')).toString("base64"),
+                data: Buffer.from(photo).toString("base64"),
                 mimeType: 'image/jpeg'
             }
         }]
