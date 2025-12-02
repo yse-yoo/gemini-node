@@ -1,19 +1,28 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require("@google/genai");
 
 require('dotenv').config();
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 async function run() {
-    // プロンプト
     const prompt = "世界の人口は何人ですか？";
+    const modelName = process.env.GEMINI_MODEL || "gemini-2.0-flash";
+    const apiKey = process.env.GEMINI_API_KEY;
 
-    // LLMの選択「gemini-1.5-flash」
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    if (!apiKey) {
+        console.error("GEMINI_API_KEY is not set in environment variables.");
+        return;
+    }
+    const ai = new GoogleGenAI({ apiKey });
 
-    // Gemini API にリクエスト
-    const result = await model.generateContent(prompt);
-    console.log(result.response.text());
+    const response = await ai.models.generateContent({
+        model: modelName,
+        config: { maxOutputTokens: 512 },
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+    });
+
+    const result =
+        response?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+    if (!result) throw "Empty result";
+    console.log("Response:", result);
 }
+
 run();
